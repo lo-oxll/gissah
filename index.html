@@ -6,7 +6,6 @@
 <title>قصّة | عناية بالجسم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- تضمين مكتبة Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -50,7 +49,7 @@
   .field{margin-bottom:12px;}
   .field .box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;}
   .field input, .field textarea{border:0;outline:0;background:transparent;flex:1;font-family:'Cairo',sans-serif;font-size:14px;}
-  field .err{color:var(--err);font-size:12px;margin:4px 4px 0;}
+  .field .err{color:var(--err);font-size:12px;margin:4px 4px 0;}
   .total-row{display:flex;justify-content:space-between;padding:0 2px;margin:18px 0 14px;font-weight:700;}
   .primary-btn{width:100%;border:0;padding:14px;border-radius:12px;background:var(--moss);color:#F3F1E9;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;font-size:15px;}
   .primary-btn:disabled{opacity:.6;cursor:default;}
@@ -91,10 +90,12 @@
 </style>
 </head>
 <body>
-  <div id="loading" class="loading-page">
+
+<div id="loading" class="loading-page">
   <div class="spinner"></div>
   <p>جارِ تحميل المتجر...</p>
 </div>
+
 <div id="app" style="display:none;"></div>
 
 <div id="modalBg" class="modal-bg"></div>
@@ -103,9 +104,10 @@
 <script>
 /* ======================= تهيئة اتصال Supabase ======================= */
 const SUPABASE_URL = "https://hhknbkyjalsbanoudoos.supabase.co";
-// يرجى استبدال الـ KEY التالي بالـ anon public key الخاص بمشروعك
 const SUPABASE_ANON_KEY = "sb_publishable_SaukFLYePA4O6j9hm33Xfw_uvyYm1u-";
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const KEYS = { PRODUCTS: "qissa:products", ORDERS: "qissa:orders", SETTINGS: "qissa:settings" };
 const DEFAULT_PW_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
 
@@ -154,45 +156,6 @@ function showToast(text, kind="ok"){
   setTimeout(()=> el.remove(), 3200);
 }
 
-/* ======================= مزامنة البيانات مع Supabase ======================= */
-async function loadAll(){
-  // 1. تحميل الإعدادات من الـ localStorage كالسابق
-  state.settings = loadLocal(KEYS.SETTINGS, { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" });
-  if (!state.settings.adminPasswordHash) {
-    state.settings.adminPasswordHash = DEFAULT_PW_HASH;
-  }
-
-  try {
-    // 2. جلب المنتجات من جدول Supabase
-    const { data: dbProducts, error: prodErr } = await supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!prodErr && dbProducts) {
-      state.products = dbProducts;
-    } else {
-      state.products = loadLocal(KEYS.PRODUCTS, []); // Fallback في حال تعطل الاتصال
-    }
-
-    // 3. جلب الطلبات من جدول Supabase
-    const { data: dbOrders, error: ordErr } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!ordErr && dbOrders) {
-      state.orders = dbOrders;
-    } else {
-      state.orders = loadLocal(KEYS.ORDERS, []);
-    }
-  } catch (e) {
-    console.error("Supabase load error:", e);
-    state.products = loadLocal(KEYS.PRODUCTS, []);
-    state.orders = loadLocal(KEYS.ORDERS, []);
-  }
-}
-
 function saveSettings(){ saveLocal(KEYS.SETTINGS, state.settings); }
 
 /* ======================= توجيه واتساب ======================= */
@@ -237,19 +200,22 @@ function render(){
 }
 
 function renderStore(){
-  const items = state.products.map(p => `
-    <div class="card">
-<div class="img">${p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.name) + '">' : '🍼'}</div>
-<div class="body">
-        <div class="seal">${money(p.price)}<br>د.ع</div>
-        <div class="info">
-          <h3>${esc(p.name)}</h3>
-          ${p.description ? <p>${esc(p.description)}</p> : ""}
+  const items = state.products.map(p => {
+    const imgTag = p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.name) + '">' : '🧴';
+    return `
+      <div class="card">
+        <div class="img">${imgTag}</div>
+        <div class="body">
+          <div class="seal">${money(p.price)}<br>د.ع</div>
+          <div class="info">
+            <h3>${esc(p.name)}</h3>
+            ${p.description ? `<p>${esc(p.description)}</p>` : ""}
+          </div>
         </div>
+        <button class="book-btn" data-book="${p.id}">احجزي الآن</button>
       </div>
-      <button class="book-btn" data-book="${p.id}">احجزي الآن</button>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   app.innerHTML = `
     <div class="wrap">
@@ -258,7 +224,7 @@ function renderStore(){
         <h1 class="brand display">قصّة</h1>
         <p class="lede">كل منتج هنا هو فصل من طقوسك اليومية. اختاري منتجك واحجزيه، وسنتواصل معك لإتمام الطلب.</p>
       </header>
-      ${state.products.length === 0 ? <div class="empty">لم تتم إضافة أي منتجات بعد.</div> : `<div class="grid">${items}</div>`}
+      ${state.products.length === 0 ? `<div class="empty">لم تتم إضافة أي منتجات بعد.</div>` : `<div class="grid">${items}</div>`}
     </div>
     <button class="fab" id="adminFab" title="دخول الإدارة">🔒</button>
   `;
@@ -282,6 +248,7 @@ function openBookingModal(){
 
   function paint(){
     const total = qty * Number(p.price);
+    const modalImg = p.image ? '<img src="' + esc(p.image) + '">' : '<div class="ph"></div>';
     modalBg.innerHTML = `
       <div class="modal">
         <div class="row">
@@ -289,7 +256,7 @@ function openBookingModal(){
           <button class="close-x" id="closeModal">✕</button>
         </div>
         <div class="product-preview">
-          ${p.image ? <img src="${esc(p.image)}"> : `<div class="ph"></div>`}
+          ${modalImg}
           <div>
             <div style="font-weight:600">${esc(p.name)}</div>
             <div style="font-size:13px;color:var(--muted)">${money(p.price)} د.ع للقطعة</div>
@@ -343,7 +310,7 @@ function openBookingModal(){
           customer_name: name,
           phone_number: phone,
           address: loc,
-          product_name: ${p.name} (عدد: ${qty})
+          product_name: `${p.name} (عدد: ${qty})`
         }
       ]);
 
@@ -371,7 +338,7 @@ function openBookingModal(){
 
     const num = formatWhatsapp(state.settings.whatsapp);
     if (num){
-      const msg = حجز جديد من متجر قصة\nالمنتج: ${p.name}\nالكمية: ${qty}\nالسعر الإجمالي: ${total} د.ع\nاسم العميل: ${name}\nالموقع: ${loc}\nرقم الهاتف: ${phone};
+      const msg = `حجز جديد من متجر قصة\nالمنتج: ${p.name}\nالكمية: ${qty}\nالسعر الإجمالي: ${total} د.ع\nاسم العميل: ${name}\nالموقع: ${loc}\nرقم الهاتف: ${phone}`;
       window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, "_blank");
     }
     showToast("تم إرسال الحجز بنجاح، سيتم التواصل معك قريبًا");
@@ -418,8 +385,7 @@ function renderAdminLogin(){
 
     const hash = await sha256Hex(pw);
     if (hash === (state.settings.adminPasswordHash || DEFAULT_PW_HASH)) {
-      document.getElementById("loginErr").
-        textContent = "";
+      document.getElementById("loginErr").textContent = "";
       state.view = "admin";
       state.adminTab = "products";
       render();
@@ -480,7 +446,7 @@ function renderProductsTab(body){
     if (!file) return;
     const dataUrl = await resizeImage(file);
     pendingImage = dataUrl;
-    document.getElementById("uploadBox").innerHTML = <img src="${dataUrl}">;
+    document.getElementById("uploadBox").innerHTML = `<img src="${dataUrl}">`;
   };
   document.getElementById("pPrice").oninput = (e) => {
     e.target.value = e.target.value.replace(/\D/g, "");
@@ -520,15 +486,18 @@ function renderProductsTab(body){
 
   const list = document.getElementById("prodList");
   if (state.products.length === 0){
-    list.innerHTML = <p class="hint center">لا توجد منتجات مضافة بعد.</p>;
+    list.innerHTML = `<p class="hint center">لا توجد منتجات مضافة بعد.</p>`;
   } else {
-    list.innerHTML = state.products.map(p => `
-      <div class="prod-row">
-        ${p.image ? <img src="${esc(p.image)}"> : `<div class="ph"></div>`}
-        <div class="info"><h4>${esc(p.name)}</h4><p>${money(p.price)} د.ع</p></div>
-                                        <button class="del-btn" data-del="${p.id}">🗑</button>
-      </div>
-    `).join("");
+    list.innerHTML = state.products.map(p => {
+      const prodImg = p.image ? '<img src="' + esc(p.image) + '">' : '<div class="ph"></div>';
+      return `
+        <div class="prod-row">
+          ${prodImg}
+          <div class="info"><h4>${esc(p.name)}</h4><p>${money(p.price)} د.ع</p></div>
+          <button class="del-btn" data-del="${p.id}">🗑</button>
+        </div>
+      `;
+    }).join("");
     list.querySelectorAll("[data-del]").forEach(b => {
       b.onclick = async () => {
         const confirmDelete = confirm("هل أنت متأكد من حذف هذا المنتج؟");
@@ -556,26 +525,29 @@ function renderProductsTab(body){
 
 function renderOrdersTab(body){
   if (state.orders.length === 0){
-    body.innerHTML = <p class="hint center" style="padding:30px 0;">لا توجد حجوزات بعد.</p>;
+    body.innerHTML = `<p class="hint center" style="padding:30px 0;">لا توجد حجوزات بعد.</p>`;
     return;
   }
-  body.innerHTML = state.orders.map(o => `
-    <div class="order-card">
-      <div class="order-top">
-        ${o.product_image ? <img src="${esc(o.product_image)}"> : `<div class="ph"></div>`}
-        <div style="flex:1">
-          <div style="font-weight:600;font-size:14px;">${esc(o.product_name)} <span style="color:var(--muted);font-weight:400;">${o.qty ? × ${o.qty} : ''}</span></div>
-          <div style="font-size:11px;color:var(--muted);">${new Date(o.created_at).toLocaleString("ar")}</div>
+  body.innerHTML = state.orders.map(o => {
+    const orderImg = o.product_image ? '<img src="' + esc(o.product_image) + '">' : '<div class="ph"></div>';
+    return `
+      <div class="order-card">
+        <div class="order-top">
+          ${orderImg}
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px;">${esc(o.product_name)} <span style="color:var(--muted);font-weight:400;">${o.qty ? `× ${o.qty}` : ''}</span></div>
+            <div style="font-size:11px;color:var(--muted);">${new Date(o.created_at).toLocaleString("ar")}</div>
+          </div>
+          <div style="font-weight:700;font-size:14px;">${o.total ? money(o.total) + ' د.ع' : ''}</div>
         </div>
-        <div style="font-weight:700;font-size:14px;">${o.total ? money(o.total) + ' د.ع' : ''}</div>
+        <div class="order-details">
+          <div>👤 ${esc(o.customer_name)}</div>
+          <div>📍 ${esc(o.address || o.location)}</div>
+          <div>📞 ${esc(o.phone_number || o.phone)}</div>
+        </div>
       </div>
-      <div class="order-details">
-        <div>👤 ${esc(o.customer_name)}</div>
-        <div>📍 ${esc(o.address || o.location)}</div>
-        <div>📞 ${esc(o.phone_number || o.phone)}</div>
-      </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 function renderSettingsTab(body){
@@ -629,17 +601,17 @@ function renderSettingsTab(body){
     saveSettings();
     document.getElementById("oldPw").value = "";
     document.getElementById("newPw").value = "";
-    msgEl.style.
-    color = "var(--moss)";
+    msgEl.style.color = "var(--moss)";
     msgEl.textContent = "تم تغيير كلمة المرور بنجاح ✓";
     showToast("تم تغيير كلمة المرور");
   };
 }
+
 /* ======================= بدء التشغيل ======================= */
 async function init(){
   try {
     // جلب المنتجات من Supabase أولاً
-    const { data: dbProducts, error: prodErr } = await window.supabase
+    const { data: dbProducts, error: prodErr } = await supabase
       .from('products')
       .select('*')
       .order('created_at', { ascending: false });
@@ -651,7 +623,7 @@ async function init(){
     }
 
     // جلب الحجوزات من Supabase
-    const { data: dbOrders, error: ordErr } = await window.supabase
+    const { data: dbOrders, error: ordErr } = await supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
