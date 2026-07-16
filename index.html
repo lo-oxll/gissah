@@ -635,14 +635,51 @@ function renderSettingsTab(body){
     showToast("تم تغيير كلمة المرور");
   };
 }
-
 /* ======================= بدء التشغيل ======================= */
-(async function init(){
-  await loadAll();
-  loadingEl.style.display = "none";
-  app.style.display = "block";
-  render();
-})();
+async function init(){
+  try {
+    // جلب المنتجات من Supabase أولاً
+    const { data: dbProducts, error: prodErr } = await window.supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!prodErr && dbProducts) {
+      state.products = dbProducts;
+    } else {
+      state.products = loadLocal(KEYS.PRODUCTS, []);
+    }
+
+    // جلب الحجوزات من Supabase
+    const { data: dbOrders, error: ordErr } = await window.supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!ordErr && dbOrders) {
+      state.orders = dbOrders;
+    } else {
+      state.orders = loadLocal(KEYS.ORDERS, []);
+    }
+    
+    // تحميل بقية الإعدادات المحلية
+    state.settings = loadLocal(KEYS.SETTINGS, { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" });
+
+  } catch (e) {
+    console.error("Supabase load error, falling back to local:", e);
+    state.products = loadLocal(KEYS.PRODUCTS, []);
+    state.orders = loadLocal(KEYS.ORDERS, []);
+    state.settings = loadLocal(KEYS.SETTINGS, { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" });
+  } finally {
+    // إخفاء شاشة التحميل وإظهار المتجر مهما كانت النتيجة لضمان عدم التعليق
+    loadingEl.style.display = "none";
+    app.style.display = "block";
+    render();
+  }
+}
+
+// تشغيل الدالة
+init();
 </script>
 </body>
 </html>
