@@ -1,3 +1,77 @@
+
+Claude finished the response
+
+<!DOCTYPE html> <html lang="ar" dir="rtl"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>قصّة | عناية بالجسم</title> <link rel="preconnect" href="https://fonts.googleapis.com"> <link href="https://fonts.googleapis.com/css2?family=Aref
+
+pasted
+
+اصلح مشكله الكود
+
+
+اكتشف خطأ بناء الكود وأصلحه وحدد مشكلة الإعدادات
+اكتشف خطأ بناء الكود وأصلحه وحدد مشكلة الإعدادات
+وجدت المشكلة — أكيد راح يطلع عندك خطأ JavaScript ويوقف الموقع بالكامل (شاشة التحميل تضل عالقة). السبب:
+
+دالة renderStore مكررة ومتشابكة غلط — بعد document.getElementById("adminFab").addEventListener(...) بالدالة الأولى، ما انسدت بشكل صحيح وانفتحت داخلها دالة renderStore ثانية كاملة (نفس الكود تقريباً) بشكل خاطئ نحوياً (syntax error)، وهذا يكسر الكود كله من هذي النقطة وما ينفذ init() أبداً — لهذا يضل "جارِ تحميل المتجر..." معلق للأبد.
+
+الحل: أحذف النسخة المكررة وأخلي دالة renderStore وحدة نظيفة وصحيحة.
+
+خليني أصلحه وأسويلك الملف كامل:
+
+
+Ran 3 commands, created a file
+Ran 3 commands, created a file
+تأكدت — الكود الآن سليم نحوياً 100%.
+
+خلاصة المشكلة: كانت عندك دالة renderStore مكررة ومتداخلة غلط جوه بعضها (نسخة أولى ما انسدت صح، وبعدها انفتحت نسخة ثانية كاملة جوها) — وهذا كسر تحليل الجافاسكربت كله، فتوقف تنفيذ init() وضلت شاشة "جارِ تحميل المتجر..." عالقة للأبد وما يفتح المتجر أبداً.
+
+شنو سويت: حذفت التكرار وخليت نسخة وحدة نظيفة من renderStore. كذلك فصلت كود جلب البيانات (loadAll) بدالة مستقلة عشان تنفع تنستخدم بعد إضافة/حذف منتج (كانت أصلاً مستدعاة بذاك الاسم بالكود لكنها ما كانت موجودة كدالة منفصلة — كان هذا راح يسبب خطأ ثاني لو المستخدم يحاول يضيف منتج).
+
+
+Presented file
+Presented file
+جربه محلياً، والصفحة المفروض تفتح المتجر فوراً بدل ما تعلق بشاشة التحميل.
+
+
+Qissa store
+Code · HTML 
+qissa-store.html:104 Uncaught SyntaxError: Identifier 'supabase' has already been declared (at qissa-store.html:104:9)
+qissa-store.html:1 Unsafe attempt to load URL file:///C:/Users/Milano/Desktop/qissa-store.html from frame with URL file:///C:/Users/Milano/Desktop/qissa-store.html. 'file:' URLs are treated as unique security origins.
+
+
+Diagnosed variable naming conflict and devised renaming solution
+Diagnosed variable naming conflict and devised renaming solution
+عرفت المشكلة — مكتبة Supabase من الـ CDN نفسها تسوي متغير عام اسمه supabase، وأنت بالكود سويت const supabase = ... بنفس الاسم، وهذا تعارض تصريح (تقدر تعمل const فوق متغير معرف مسبقاً بـ var بنفس السكوب). الحل: أغيّر اسم المتغير الخاص فينا إلى supabaseClient.
+
+
+Ran 2 commands
+Ran 2 commands
+ممتاز، كلها تم تصحيحها. خلني أتحقق من صحة الصياغة مرة ثانية وأحدّث الملف بالمخرجات.
+
+
+تحقق نهائي وتحديث ملف المخرجات
+تحقق نهائي وتحديث ملف المخرجات
+بخصوص الرسالة الثانية "Unsafe attempt to load URL... file: URLs are treated as unique security origins" — هاي مو خطأ بالكود، هاي بس تحذير طبيعي من المتصفح لأنك تفتح الملف مباشرة من جهازك (file:///...) بدل سيرفر. غالباً صار بسبب محاولة تحميل نفس الصفحة كـ iframe أو رابط داخلي، ومو مؤثر على عمل المتجر. بس لو تحاب تشغّله بأفضل شكل (وتفادي أي قيود متصفح على file://)، الأفضل ترفعه على استضافة أو تشغله عبر سيرفر محلي بسيط.
+
+
+Presented file
+Presented file
+جربه الحين، المفروض الخطأ ذاك ما يطلع بعد.
+
+
+Qissa store
+Code · HTML 
+
+Want to be notified when Claude responds?
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+
+
+Qissa store · HTML
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -90,27 +164,27 @@
 </style>
 </head>
 <body>
-
+ 
 <div id="loading" class="loading-page">
   <div class="spinner"></div>
   <p>جارِ تحميل المتجر...</p>
 </div>
-
+ 
 <div id="app" style="display:none;"></div>
-
+ 
 <div id="modalBg" class="modal-bg"></div>
 <div id="toastHost"></div>
-
+ 
 <script>
 /* ======================= تهيئة اتصال Supabase ======================= */
 const SUPABASE_URL = "https://hhknbkyjalsbanoudoos.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_SaukFLYePA4O6j9hm33Xfw_uvyYm1u-";
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+ 
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+ 
 const KEYS = { PRODUCTS: "qissa:products", ORDERS: "qissa:orders", SETTINGS: "qissa:settings" };
 const DEFAULT_PW_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
-
+ 
 function loadLocal(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -121,15 +195,15 @@ function saveLocal(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); return true; }
   catch { return false; }
 }
-
+ 
 async function sha256Hex(text) {
   const enc = new TextEncoder().encode(text);
   const buf = await crypto.subtle.digest("SHA-256", enc);
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
-
+ 
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-
+ 
 /* ======================= حالة عامة ======================= */
 let state = {
   view: "store",          
@@ -139,14 +213,14 @@ let state = {
   settings: { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" },
   selectedProduct: null,
 };
-
+ 
 const app = document.getElementById("app");
 const loadingEl = document.getElementById("loading");
 const modalBg = document.getElementById("modalBg");
-
+ 
 function esc(s){ return (s ?? "").toString().replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function money(n){ return Number(n||0).toLocaleString("ar"); }
-
+ 
 function showToast(text, kind="ok"){
   const host = document.getElementById("toastHost");
   const el = document.createElement("div");
@@ -155,9 +229,9 @@ function showToast(text, kind="ok"){
   host.appendChild(el);
   setTimeout(()=> el.remove(), 3200);
 }
-
+ 
 function saveSettings(){ saveLocal(KEYS.SETTINGS, state.settings); }
-
+ 
 /* ======================= توجيه واتساب ======================= */
 function formatWhatsapp(raw){
   let d = (raw||"").replace(/\D/g,"");
@@ -169,7 +243,7 @@ function isValidWhatsapp(raw){
   const d = formatWhatsapp(raw);
   return d.length >= 10 && d.length <= 15;
 }
-
+ 
 /* ======================= ضغط الصور إلى base64 ======================= */
 function resizeImage(file, maxW=720, quality=0.72){
   return new Promise((resolve,reject)=>{
@@ -191,17 +265,17 @@ function resizeImage(file, maxW=720, quality=0.72){
     reader.readAsDataURL(file);
   });
 }
-
+ 
 /* ======================= الرندر الرئيسي ======================= */
 function render(){
   if (state.view === "store") return renderStore();
   if (state.view === "adminLogin") return renderAdminLogin();
   if (state.view === "admin") return renderAdmin();
 }
-
+ 
 function renderStore(){
   const items = state.products.map(p => {
-    const imgTag = p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.name) + '">' : '🧴';
+    const imgTag = p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">` : '🧴';
     return `
       <div class="card">
         <div class="img">${imgTag}</div>
@@ -216,7 +290,7 @@ function renderStore(){
       </div>
     `;
   }).join("");
-
+ 
   app.innerHTML = `
     <div class="wrap">
       <header class="hero">
@@ -228,44 +302,7 @@ function renderStore(){
     </div>
     <button class="fab" id="adminFab" title="دخول الإدارة">🔒</button>
   `;
-
-  app.querySelectorAll("[data-book]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      state.selectedProduct = state.products.find(p => p.id === btn.dataset.book);
-      openBookingModal();
-    });
-  });
-  document.getElementById("adminFab").addEventListener("click", () => {
-    state.view = "adminLogin";
- function renderStore(){
-  const items = state.products.map(p => {
-    const imgTag = p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">` : '🧴';
-   return `
-      <div class="card">
-        <div class="img">${imgTag}</div>
-        <div class="body">
-          <div class="seal">${money(p.price)}<br>د.ع</div>
-          <div class="info">
-            <h3>${esc(p.name)}</h3>${p.description ? `<p>${esc(p.description)}</p>` : ""}
-          </div>
-        </div>
-        <button class="book-btn" data-book="${p.id}">احجزي الآن</button>
-      </div>
-    `;
-  }).join("");
-
-  app.innerHTML = `
-    <div class="wrap">
-      <header class="hero">
-        <p class="eyebrow">عناية بالجسم</p>
-        <h1 class="brand display">قصّة</h1>
-        <p class="lede">كل منتج هنا هو فصل من طقوسك اليومية. اختاري منتجك واحجزيه، وسنتواصل معك لإتمام الطلب.</p>
-      </header>
-      ${state.products.length === 0 ? `<div class="empty">لم تتم إضافة أي منتجات بعد.</div>` : `<div class="grid">${items}</div>`}
-    </div>
-    <button class="fab" id="adminFab" title="دخول الإدارة">🔒</button>
-  `;
-
+ 
   app.querySelectorAll("[data-book]").forEach(btn => {
     btn.addEventListener("click", () => {
       state.selectedProduct = state.products.find(p => p.id === btn.dataset.book);
@@ -277,11 +314,12 @@ function renderStore(){
     render();
   });
 }
+ 
 /* ---------- نافذة الحجز ---------- */
 function openBookingModal(){
   const p = state.selectedProduct;
   let qty = 1;
-
+ 
   function paint(){
     const total = qty * Number(p.price);
     const modalImg = p.image ? '<img src="' + esc(p.image) + '">' : '<div class="ph"></div>';
@@ -319,7 +357,7 @@ function openBookingModal(){
     document.getElementById("qtyPlus").onclick = () => { qty = Math.min(10, qty+1); paint(); };
     document.getElementById("submitOrder").onclick = submit;
   }
-
+ 
   async function submit(){
     const name = document.getElementById("fName").value.trim();
     const loc = document.getElementById("fLoc").value.trim();
@@ -332,14 +370,14 @@ function openBookingModal(){
     if (!loc){ document.getElementById("errLoc").textContent = "أدخلي الموقع"; ok = false; }
     if (!phone || phone.replace(/\D/g,"").length < 8){ document.getElementById("errPhone").textContent = "أدخلي رقم هاتف صحيح"; ok = false; }
     if (!ok) return;
-
+ 
     const btn = document.getElementById("submitOrder");
     btn.disabled = true; btn.textContent = "جارِ الإرسال...";
-
+ 
     const total = qty * Number(p.price);
-    
+ 
     // إرسال الطلب إلى جدول orders في Supabase
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('orders')
       .insert([
         {
@@ -349,14 +387,14 @@ function openBookingModal(){
           product_name: `${p.name} (عدد: ${qty})`
         }
       ]);
-
+ 
     if (error) {
       console.error("Database insert error:", error);
       showToast("حدث خطأ أثناء حفظ الطلب في قاعدة البيانات", "err");
       btn.disabled = false; btn.textContent = "تأكيد الحجز";
       return;
     }
-
+ 
     // لتحديث الواجهة محلياً بعد الإرسال الناجح
     const localOrder = {
       id: uid(),
@@ -371,7 +409,7 @@ function openBookingModal(){
     };
     state.orders.unshift(localOrder);
     saveLocal(KEYS.ORDERS, state.orders);
-
+ 
     const num = formatWhatsapp(state.settings.whatsapp);
     if (num){
       const msg = `حجز جديد من متجر قصة\nالمنتج: ${p.name}\nالكمية: ${qty}\nالسعر الإجمالي: ${total} د.ع\nاسم العميل: ${name}\nالموقع: ${loc}\nرقم الهاتف: ${phone}`;
@@ -381,16 +419,16 @@ function openBookingModal(){
     closeModal();
     render();
   }
-
+ 
   paint();
   modalBg.classList.add("open");
 }
-
+ 
 function closeModal(){
   modalBg.classList.remove("open");
   modalBg.innerHTML = "";
 }
-
+ 
 /* ---------- تسجيل دخول الأدمن ---------- */
 function renderAdminLogin(){
   app.innerHTML = `
@@ -409,16 +447,16 @@ function renderAdminLogin(){
     </div>
   `;
   document.getElementById("backBtn").onclick = () => { state.view = "store"; render(); };
-
+ 
   const pwInput = document.getElementById("pw");
   pwInput.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
   document.getElementById("loginBtn").onclick = doLogin;
-
+ 
   async function doLogin(){
     const pw = pwInput.value;
     const btn = document.getElementById("loginBtn");
     btn.disabled = true; btn.textContent = "جارِ الدخول...";
-
+ 
     const hash = await sha256Hex(pw);
     if (hash === (state.settings.adminPasswordHash || DEFAULT_PW_HASH)) {
       document.getElementById("loginErr").textContent = "";
@@ -431,7 +469,7 @@ function renderAdminLogin(){
     }
   }
 }
-
+ 
 /* ---------- لوحة الإدارة ---------- */
 function renderAdmin(){
   app.innerHTML = `
@@ -455,13 +493,13 @@ function renderAdmin(){
   app.querySelectorAll("[data-tab]").forEach(btn=>{
     btn.onclick = () => { state.adminTab = btn.dataset.tab; render(); };
   });
-
+ 
   const body = document.getElementById("adminBody");
   if (state.adminTab === "products") renderProductsTab(body);
   if (state.adminTab === "orders") renderOrdersTab(body);
   if (state.adminTab === "settings") renderSettingsTab(body);
 }
-
+ 
 function renderProductsTab(body){
   let pendingImage = null;
   body.innerHTML = `
@@ -494,9 +532,9 @@ function renderProductsTab(body){
     if (!name || !price) return;
     const btn = document.getElementById("addBtn");
     btn.disabled = true; btn.textContent = "جارِ الحفظ...";
-
+ 
     // إرسال المنتج الجديد إلى جدول products بـ Supabase
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('products')
       .insert([
         {
@@ -506,20 +544,20 @@ function renderProductsTab(body){
           image: pendingImage
         }
       ]);
-
+ 
     if (error) {
       console.error("Error inserting product:", error);
       showToast("تعذر إضافة المنتج لقاعدة البيانات", "err");
       btn.disabled = false; btn.textContent = "+ إضافة المنتج";
       return;
     }
-
+ 
     // تحديث الواجهة محلياً وإعادة تحميل البيانات
     showToast("تمت إضافة المنتج بنجاح");
     await loadAll();
     renderAdmin();
   };
-
+ 
   const list = document.getElementById("prodList");
   if (state.products.length === 0){
     list.innerHTML = `<p class="hint center">لا توجد منتجات مضافة بعد.</p>`;
@@ -538,19 +576,19 @@ function renderProductsTab(body){
       b.onclick = async () => {
         const confirmDelete = confirm("هل أنت متأكد من حذف هذا المنتج؟");
         if (!confirmDelete) return;
-
+ 
         // حذف المنتج من Supabase
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from('products')
           .delete()
           .eq('id', b.dataset.del);
-
+ 
         if (error) {
           console.error("Error deleting product:", error);
           showToast("تعذر حذف المنتج", "err");
           return;
         }
-
+ 
         showToast("تم حذف المنتج");
         await loadAll();
         renderAdmin();
@@ -558,7 +596,7 @@ function renderProductsTab(body){
     });
   }
 }
-
+ 
 function renderOrdersTab(body){
   if (state.orders.length === 0){
     body.innerHTML = `<p class="hint center" style="padding:30px 0;">لا توجد حجوزات بعد.</p>`;
@@ -585,7 +623,7 @@ function renderOrdersTab(body){
     `;
   }).join("");
 }
-
+ 
 function renderSettingsTab(body){
   body.innerHTML = `
     <div class="panel">
@@ -603,7 +641,7 @@ function renderSettingsTab(body){
       <button class="dark-btn" id="savePw">حفظ كلمة المرور</button>
     </div>
   `;
-
+ 
   document.getElementById("saveWa").onclick = () => {
     const val = document.getElementById("waNum").value.trim();
     if (val && !isValidWhatsapp(val)) {
@@ -615,12 +653,12 @@ function renderSettingsTab(body){
     saveSettings();
     showToast("تم حفظ الإعدادات");
   };
-
+ 
   document.getElementById("savePw").onclick = async () => {
     const oldPw = document.getElementById("oldPw").value;
     const newPw = document.getElementById("newPw").value.trim();
     const msgEl = document.getElementById("pwMsg");
-
+ 
     const oldHash = await sha256Hex(oldPw);
     if (oldHash !== (state.settings.adminPasswordHash || DEFAULT_PW_HASH)) {
       msgEl.style.color = "var(--err)";
@@ -642,51 +680,54 @@ function renderSettingsTab(body){
     showToast("تم تغيير كلمة المرور");
   };
 }
-
-/* ======================= بدء التشغيل ======================= */
-async function init(){
+ 
+/* ======================= جلب البيانات من Supabase ======================= */
+async function loadAll(){
   try {
-    // جلب المنتجات من Supabase أولاً
-    const { data: dbProducts, error: prodErr } = await supabase
+    const { data: dbProducts, error: prodErr } = await supabaseClient
       .from('products')
       .select('*')
       .order('created_at', { ascending: false });
-
+ 
     if (!prodErr && dbProducts) {
       state.products = dbProducts;
     } else {
       state.products = loadLocal(KEYS.PRODUCTS, []);
     }
-
-    // جلب الحجوزات من Supabase
-    const { data: dbOrders, error: ordErr } = await supabase
+ 
+    const { data: dbOrders, error: ordErr } = await supabaseClient
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
-
+ 
     if (!ordErr && dbOrders) {
       state.orders = dbOrders;
     } else {
       state.orders = loadLocal(KEYS.ORDERS, []);
     }
-    
-    // تحميل بقية الإعدادات المحلية
-    state.settings = loadLocal(KEYS.SETTINGS, { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" });
-
   } catch (e) {
     console.error("Supabase load error, falling back to local:", e);
     state.products = loadLocal(KEYS.PRODUCTS, []);
     state.orders = loadLocal(KEYS.ORDERS, []);
-  } finally {
-    // إخفاء شاشة التحميل وإظهار المتجر مهما كانت النتيجة لضمان عدم التعليق
-    loadingEl.style.display = "none";
-    app.style.display = "block";
-    render();
   }
 }
-
+ 
+/* ======================= بدء التشغيل ======================= */
+async function init(){
+  await loadAll();
+  state.settings = loadLocal(KEYS.SETTINGS, { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" });
+ 
+  // إخفاء شاشة التحميل وإظهار المتجر مهما كانت النتيجة لضمان عدم التعليق
+  loadingEl.style.display = "none";
+  app.style.display = "block";
+  render();
+}
+ 
 // تشغيل الدالة
 init();
 </script>
 </body>
 </html>
+ 
+
+✕Merlin
