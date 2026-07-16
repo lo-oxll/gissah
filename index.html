@@ -95,8 +95,6 @@
   <div class="spinner"></div>
   <p>جارِ تحميل المتجر...</p>
 </div>
-const SUPABASE_URL = "https://hhknbkyjalsbanoudoos.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_SaukFLYePA4O6j9hm33Xfw_uvyYm1u-";
 <div id="app" style="display:none;"></div>
 
 <div id="modalBg" class="modal-bg"></div>
@@ -106,10 +104,8 @@ const SUPABASE_ANON_KEY = "sb_publishable_SaukFLYePA4O6j9hm33Xfw_uvyYm1u-";
 /* ======================= تهيئة اتصال Supabase ======================= */
 const SUPABASE_URL = "https://hhknbkyjalsbanoudoos.supabase.co";
 // يرجى استبدال الـ KEY التالي بالـ anon public key الخاص بمشروعك
-const SUPABASE_ANON_KEY = "اكتب_هنا_مفتاح_anon_public_الخاص_بمشروعك";
-
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+const SUPABASE_ANON_KEY = "sb_publishable_SaukFLYePA4O6j9hm33Xfw_uvyYm1u-";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const KEYS = { PRODUCTS: "qissa:products", ORDERS: "qissa:orders", SETTINGS: "qissa:settings" };
 const DEFAULT_PW_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
 
