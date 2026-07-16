@@ -239,7 +239,7 @@ function renderStore(){
     state.view = "adminLogin";
  function renderStore(){
   const items = state.products.map(p => {
-    const imgTag = p.image ? <img src="${esc(p.image)}" alt="${esc(p.name)}"> : '🧴';
+    const imgTag = p.image ? '<img src="${esc(p.image)}" alt="${esc(p.name)}">' : '🧴';
     return `
       <div class="card">
         <div class="img">${imgTag}</div>
