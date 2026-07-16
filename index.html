@@ -240,7 +240,7 @@ function renderStore(){
  function renderStore(){
   const items = state.products.map(p => {
     const imgTag = p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">` : '🧴';
-    return `
+   return `
       <div class="card">
         <div class="img">${imgTag}</div>
         <div class="body">
