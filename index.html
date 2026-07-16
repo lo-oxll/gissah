@@ -677,7 +677,6 @@ async function init(){
     console.error("Supabase load error, falling back to local:", e);
     state.products = loadLocal(KEYS.PRODUCTS, []);
     state.orders = loadLocal(KEYS.ORDERS, []);
-    state.settings = loadLocal(KEYS.SETTINGS, { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" });
   } finally {
     // إخفاء شاشة التحميل وإظهار المتجر مهما كانت النتيجة لضمان عدم التعليق
     loadingEl.style.display = "none";
