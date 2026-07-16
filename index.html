@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>قصّة | عناية بالجسم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EDEAE3; --ink:#1F2320; --moss:#4B5D45; --moss-dark:#3c4b37;
+    --card:#F7F5F0; --line:#D8D3C7; --muted:#7a7460; --err:#8B3A3A;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Cairo',sans-serif;}
+  .display{font-family:'Aref Ruqaa',serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 100px;}
+  header.hero{text-align:center;padding:56px 0 40px;}
+  .eyebrow{font-size:12px;letter-spacing:.3em;color:var(--moss);font-weight:700;margin:0 0 10px;}
+  h1.brand{font-size:64px;margin:0 0 16px;}
+  .lede{max-width:420px;margin:0 auto;color:#5b5648;line-height:1.8;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .card .img{aspect-ratio:1;background:var(--bg);overflow:hidden;display:flex;align-items:center;justify-content:center;color:#b3ab94;}
+  .card .img img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+  .card:hover .img img{transform:scale(1.05);}
+  .card .body{padding:14px;display:flex;align-items:center;gap:12px;}
+  .seal{width:60px;height:60px;border-radius:50%;background:var(--moss);color:#F3F1E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px dashed var(--bg);font-size:11px;font-weight:700;text-align:center;padding:2px;line-height:1.2;}
+  .card .info{flex:1;min-width:0;}
+  .card h3{margin:0;font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card p{margin:2px 0 0;font-size:12px;color:var(--muted);}
+  .book-btn{display:block;width:100%;border:0;padding:13px;font-weight:700;font-size:14px;background:var(--moss);color:#F3F1E9;cursor:pointer;letter-spacing:.02em;font-family:'Cairo',sans-serif;}
+  .book-btn:hover{background:var(--moss-dark);}
+  .fab{position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;background:var(--ink);color:#F3F1E9;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);border:0;}
+  .empty{text-align:center;padding:80px 0;color:var(--muted);}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .modal-bg.open{display:flex;}
+  .modal{background:var(--card);width:100%;max-width:420px;border-radius:22px;padding:24px;max-height:90vh;overflow:auto;}
+  .modal h2{margin:0 0 16px;font-size:20px;}
+  .modal .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .close-x{background:none;border:0;cursor:pointer;color:var(--muted);font-size:20px;}
+  .product-preview{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:10px;margin-bottom:20px;}
+  .product-preview img{width:56px;height:56px;border-radius:10px;object-fit:cover;}
+  .product-preview .ph{width:56px;height:56px;border-radius:10px;background:var(--line);}
+  .qty-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .qty-ctl{display:flex;align-items:center;gap:12px;}
+  .qty-ctl button{width:30px;height:30px;border-radius:50%;border:0;background:var(--ink);color:#fff;cursor:pointer;font-size:16px;}
+  .field{margin-bottom:12px;}
+  .field .box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;}
+  .field input, .field textarea{border:0;outline:0;background:transparent;flex:1;font-family:'Cairo',sans-serif;font-size:14px;}
+  .field .err{color:var(--err);font-size:12px;margin:4px 4px 0;}
+  .total-row{display:flex;justify-content:space-between;padding:0 2px;margin:18px 0 14px;font-weight:700;}
+  .primary-btn{width:100%;border:0;padding:14px;border-radius:12px;background:var(--moss);color:#F3F1E9;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;font-size:15px;}
+  .primary-btn:disabled{opacity:.6;cursor:default;}
+  .dark-btn{width:100%;border:0;padding:12px;border-radius:12px;background:var(--ink);color:#F3F1E9;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px;}
+  .dark-btn:disabled{opacity:.6;cursor:default;}
+  .ghost-btn{width:100%;border:0;padding:12px;background:none;color:var(--muted);cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#F3F1E9;padding:12px 22px;border-radius:999px;font-size:14px;z-index:60;box-shadow:0 4px 14px rgba(0,0,0,.25);animation:toastIn .3s ease;}
+  .toast.err{background:var(--err);}
+  @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+  /* admin */
+  .admin-header{display:flex;justify-content:space-between;align-items:center;padding:32px 0 22px;}
+  .tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:24px;}
+  .tab{flex:1;text-align:center;padding:10px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;border:0;background:none;color:#5b5648;font-family:'Cairo',sans-serif;}
+  .tab.active{background:var(--ink);color:#F3F1E9;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:20px;}
+  .panel h3{margin:0 0 14px;}
+  .upload-box{aspect-ratio:16/9;border:1.5px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;overflow:hidden;color:var(--muted);margin-bottom:12px;font-family:'Cairo',sans-serif;font-size:14px;}
+  .upload-box img{width:100%;height:100%;object-fit:cover;}
+  .plain-input, .plain-textarea{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);font-family:'Cairo',sans-serif;font-size:14px;margin-bottom:10px;outline:0;background:#fff;}
+  .plain-textarea{resize:none;}
+  .prod-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;}
+  .prod-row img, .prod-row .ph{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--bg);}
+  .prod-row .info{flex:1;min-width:0;}
+  .prod-row h4{margin:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .prod-row p{margin:2px 0 0;font-size:12px;color:var(--muted);}
+  .del-btn{background:none;border:0;color:var(--err);cursor:pointer;padding:8px;font-size:16px;}
+  .order-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;}
+  .order-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .order-top img, .order-top .ph{width:44px;height:44px;border-radius:10px;object-fit:cover;background:var(--bg);}
+  .order-details{font-size:12px;color:#5b5648;border-top:1px solid var(--line);padding-top:8px;line-height:1.9;}
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .login-card{width:100%;max-width:360px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:32px;}
+  .center{text-align:center;}
+  .hint{font-size:12px;color:var(--muted);margin:6px 0 20px;}
+  .spinner{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--moss);animation:spin .7s linear infinite;margin:0 auto;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading-page">
+  <div class="spinner"></div>
+  <p>جارِ تحميل المتجر...</p>
+</div>
+
+<div id="app" style="display:none;"></div>
+
+<div id="modalBg" class="modal-bg"></div>
+<div id="toastHost"></div>
+
+<script>
+/* ======================= تخزين محلي (localStorage) ======================= */
+const KEYS = { PRODUCTS: "qissa:products", ORDERS: "qissa:orders", SETTINGS: "qissa:settings" };
+
+// كلمة المرور الافتراضية: 1234 (SHA-256 hash)
+const DEFAULT_PW_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+
+function loadLocal(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
+function saveLocal(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch { return false; }
+}
+
+async function sha256Hex(text) {
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+
+/* ======================= حالة عامة ======================= */
+let state = {
+  view: "store",          // store | adminLogin | admin
+  adminTab: "products",   // products | orders | settings
+  products: [],
+  orders: [],
+  settings: { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" },
+  selectedProduct: null,
+};
+
+const app = document.getElementById("app");
+const loadingEl = document.getElementById("loading");
+const modalBg = document.getElementById("modalBg");
+
+function esc(s){ return (s ?? "").toString().replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function money(n){ return Number(n||0).toLocaleString("ar"); }
+
+function showToast(text, kind="ok"){
+  const host = document.getElementById("toastHost");
+  const el = document.createElement("div");
+  el.className = "toast" + (kind==="err" ? " err" : "");
+  el.textContent = text;
+  host.appendChild(el);
+  setTimeout(()=> el.remove(), 3200);
+}
+
+/* ======================= تحميل وحفظ البيانات ======================= */
+function loadAll(){
+  state.products = loadLocal(KEYS.PRODUCTS, []);
+  state.orders = loadLocal(KEYS.ORDERS, []);
+  state.settings = loadLocal(KEYS.SETTINGS, { adminPasswordHash: DEFAULT_PW_HASH, whatsapp: "" });
+  if (!state.settings.adminPasswordHash) {
+    state.settings.adminPasswordHash = DEFAULT_PW_HASH;
+  }
+}
+
+function saveProducts(){ saveLocal(KEYS.PRODUCTS, state.products); }
+function saveOrders(){ saveLocal(KEYS.ORDERS, state.orders); }
+function saveSettings(){ saveLocal(KEYS.SETTINGS, state.settings); }
+
+/* ======================= توجيه واتساب ======================= */
+function formatWhatsapp(raw){
+  let d = (raw||"").replace(/\D/g,"");
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("0")) d = "964" + d.slice(1);
+  return d;
+}
+function isValidWhatsapp(raw){
+  const d = formatWhatsapp(raw);
+  return d.length >= 10 && d.length <= 15;
+}
+
+/* ======================= ضغط الصور إلى base64 ======================= */
+function resizeImage(file, maxW=720, quality=0.72){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW/img.width);
+        const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+        const canvas = document.createElement("canvas");
+        canvas.width=w; canvas.height=h;
+        canvas.getContext("2d").drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ======================= الرندر الرئيسي ======================= */
+function render(){
+  if (state.view === "store") return renderStore();
+  if (state.view === "adminLogin") return renderAdminLogin();
+  if (state.view === "admin") return renderAdmin();
+}
+
+function renderStore(){
+  const items = state.products.map(p => `
+    <div class="card">
+      <div class="img">${p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">` : "🧴"}</div>
+      <div class="body">
+        <div class="seal">${money(p.price)}<br>د.ع</div>
+        <div class="info">
+          <h3>${esc(p.name)}</h3>
+          ${p.description ? `<p>${esc(p.description)}</p>` : ""}
+        </div>
+      </div>
+      <button class="book-btn" data-book="${p.id}">احجزي الآن</button>
+    </div>
+  `).join("");
+
+  app.innerHTML = `
+    <div class="wrap">
+      <header class="hero">
+        <p class="eyebrow">عناية بالجسم</p>
+        <h1 class="brand display">قصّة</h1>
+        <p class="lede">كل منتج هنا هو فصل من طقوسك اليومية. اختاري منتجك واحجزيه، وسنتواصل معك لإتمام الطلب.</p>
+      </header>
+      ${state.products.length === 0 ? `<div class="empty">لم تتم إضافة أي منتجات بعد.</div>` : `<div class="grid">${items}</div>`}
+    </div>
+    <button class="fab" id="adminFab" title="دخول الإدارة">🔒</button>
+  `;
+
+  app.querySelectorAll("[data-book]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.selectedProduct = state.products.find(p => p.id === btn.dataset.book);
+      openBookingModal();
+    });
+  });
+  document.getElementById("adminFab").addEventListener("click", () => {
+    state.view = "adminLogin";
+    render();
+  });
+}
+
+/* ---------- نافذة الحجز ---------- */
+function openBookingModal(){
+  const p = state.selectedProduct;
+  let qty = 1;
+
+  function paint(){
+    const total = qty * Number(p.price);
+    modalBg.innerHTML = `
+      <div class="modal">
+        <div class="row">
+          <h2>تأكيد الحجز</h2>
+          <button class="close-x" id="closeModal">✕</button>
+        </div>
+        <div class="product-preview">
+          ${p.image ? `<img src="${esc(p.image)}">` : `<div class="ph"></div>`}
+          <div>
+            <div style="font-weight:600">${esc(p.name)}</div>
+            <div style="font-size:13px;color:var(--muted)">${money(p.price)} د.ع للقطعة</div>
+          </div>
+        </div>
+        <div class="qty-row">
+          <span style="font-size:14px;font-weight:600;">الكمية</span>
+          <div class="qty-ctl">
+            <button id="qtyMinus">−</button>
+            <span id="qtyVal" style="min-width:20px;text-align:center;font-weight:700;">${qty}</span>
+            <button id="qtyPlus">+</button>
+          </div>
+        </div>
+        <div class="field"><div class="box">👤<input id="fName" placeholder="الاسم الكامل"></div><div class="err" id="errName"></div></div>
+        <div class="field"><div class="box">📍<input id="fLoc" placeholder="الموقع / العنوان"></div><div class="err" id="errLoc"></div></div>
+        <div class="field"><div class="box">📞<input id="fPhone" placeholder="رقم الهاتف" type="tel"></div><div class="err" id="errPhone"></div></div>
+        <div class="total-row"><span style="font-weight:400;color:var(--muted)">الإجمالي</span><span>${money(total)} د.ع</span></div>
+        <button class="primary-btn" id="submitOrder">تأكيد الحجز</button>
+      </div>
+    `;
+    document.getElementById("closeModal").onclick = closeModal;
+    modalBg.onclick = (e) => { if (e.target === modalBg) closeModal(); };
+    document.getElementById("qtyMinus").onclick = () => { qty = Math.max(1, qty-1); paint(); };
+    document.getElementById("qtyPlus").onclick = () => { qty = Math.min(10, qty+1); paint(); };
+    document.getElementById("submitOrder").onclick = submit;
+  }
+
+  function submit(){
+    const name = document.getElementById("fName").value.trim();
+    const loc = document.getElementById("fLoc").value.trim();
+    const phone = document.getElementById("fPhone").value.trim();
+    let ok = true;
+    document.getElementById("errName").textContent = "";
+    document.getElementById("errLoc").textContent = "";
+    document.getElementById("errPhone").textContent = "";
+    if (!name){ document.getElementById("errName").textContent = "أدخلي الاسم"; ok = false; }
+    if (!loc){ document.getElementById("errLoc").textContent = "أدخلي الموقع"; ok = false; }
+    if (!phone || phone.replace(/\D/g,"").length < 8){ document.getElementById("errPhone").textContent = "أدخلي رقم هاتف صحيح"; ok = false; }
+    if (!ok) return;
+
+    const btn = document.getElementById("submitOrder");
+    btn.disabled = true; btn.textContent = "جارِ الإرسال...";
+
+    const total = qty * Number(p.price);
+    const order = {
+      id: uid(),
+      product_id: p.id,
+      product_name: p.name,
+      product_image: p.image || "",
+      price: Number(p.price),
+      qty,
+      total,
+      customer_name: name,
+      location: loc,
+      phone,
+      created_at: new Date().toISOString(),
+    };
+
+    state.orders.unshift(order);
+    saveOrders();
+
+    const num = formatWhatsapp(state.settings.whatsapp);
+    if (num){
+      const msg = `حجز جديد من متجر قصة\nالمنتج: ${p.name}\nالكمية: ${qty}\nالسعر الإجمالي: ${total} د.ع\nاسم العميل: ${name}\nالموقع: ${loc}\nرقم الهاتف: ${phone}`;
+      window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+    showToast("تم إرسال الحجز بنجاح، سيتم التواصل معك قريبًا");
+    closeModal();
+  }
+
+  paint();
+  modalBg.classList.add("open");
+}
+
+function closeModal(){
+  modalBg.classList.remove("open");
+  modalBg.innerHTML = "";
+}
+
+/* ---------- تسجيل دخول الأدمن ---------- */
+function renderAdminLogin(){
+  app.innerHTML = `
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="center" style="margin-bottom:14px;">
+          <div class="seal" style="margin:0 auto;">دخول</div>
+        </div>
+        <h2 class="center" style="margin:0 0 4px;">لوحة الإدارة</h2>
+        <p class="hint center">أدخلي كلمة المرور للدخول إلى لوحة التحكم</p>
+        <div class="field"><div class="box">🔑<input id="pw" placeholder="كلمة المرور" type="password"></div></div>
+        <div class="err" id="loginErr" style="margin-bottom:10px;color:var(--err);font-size:12px;"></div>
+        <button class="primary-btn" id="loginBtn">دخول</button>
+        <button class="ghost-btn" id="backBtn">→ العودة للمتجر</button>
+      </div>
+    </div>
+  `;
+  document.getElementById("backBtn").onclick = () => { state.view = "store"; render(); };
+
+  const pwInput = document.getElementById("pw");
+  pwInput.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+  document.getElementById("loginBtn").onclick = doLogin;
+
+  async function doLogin(){
+    const pw = pwInput.value;
+    const btn = document.getElementById("loginBtn");
+    btn.disabled = true; btn.textContent = "جارِ الدخول...";
+
+    const hash = await sha256Hex(pw);
+    if (hash === (state.settings.adminPasswordHash || DEFAULT_PW_HASH)) {
+      document.getElementById("loginErr").textContent = "";
+      state.view = "admin";
+      state.adminTab = "products";
+      render();
+    } else {
+      document.getElementById("loginErr").textContent = "كلمة المرور غير صحيحة";
+      btn.disabled = false; btn.textContent = "دخول";
+    }
+  }
+}
+
+/* ---------- لوحة الإدارة ---------- */
+function renderAdmin(){
+  app.innerHTML = `
+    <div class="wrap">
+      <div class="admin-header">
+        <h1 class="display" style="font-size:32px;margin:0;">لوحة قصّة</h1>
+        <button class="ghost-btn" id="logoutBtn" style="width:auto;">خروج ⏏</button>
+      </div>
+      <div class="tabs">
+        <button class="tab ${state.adminTab==='products'?'active':''}" data-tab="products">المنتجات</button>
+        <button class="tab ${state.adminTab==='orders'?'active':''}" data-tab="orders">الحجوزات (${state.orders.length})</button>
+        <button class="tab ${state.adminTab==='settings'?'active':''}" data-tab="settings">الإعدادات</button>
+      </div>
+      <div id="adminBody"></div>
+    </div>
+  `;
+  document.getElementById("logoutBtn").onclick = () => {
+    state.view = "store";
+    render();
+  };
+  app.querySelectorAll("[data-tab]").forEach(btn=>{
+    btn.onclick = () => { state.adminTab = btn.dataset.tab; render(); };
+  });
+
+  const body = document.getElementById("adminBody");
+  if (state.adminTab === "products") renderProductsTab(body);
+  if (state.adminTab === "orders") renderOrdersTab(body);
+  if (state.adminTab === "settings") renderSettingsTab(body);
+}
+
+function renderProductsTab(body){
+  let pendingImage = null;
+  body.innerHTML = `
+    <div class="panel">
+      <h3>إضافة منتج جديد</h3>
+      <input type="file" id="fileInput" accept="image/*" style="display:none">
+      <div class="upload-box" id="uploadBox">📷 إضافة صورة المنتج</div>
+      <input class="plain-input" id="pName" placeholder="اسم المنتج">
+      <input class="plain-input" id="pPrice" placeholder="السعر (د.ع)" inputmode="numeric">
+      <textarea class="plain-textarea" id="pDesc" placeholder="وصف مختصر (اختياري)" rows="2"></textarea>
+      <button class="primary-btn" id="addBtn">+ إضافة المنتج</button>
+    </div>
+    <div id="prodList"></div>
+  `;
+  document.getElementById("uploadBox").onclick = () => document.getElementById("fileInput").click();
+  document.getElementById("fileInput").onchange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await resizeImage(file);
+    pendingImage = dataUrl;
+    document.getElementById("uploadBox").innerHTML = `<img src="${dataUrl}">`;
+  };
+  document.getElementById("pPrice").oninput = (e) => {
+    e.target.value = e.target.value.replace(/\D/g, "");
+  };
+  document.getElementById("addBtn").onclick = async () => {
+    const name = document.getElementById("pName").value.trim();
+    const price = document.getElementById("pPrice").value.trim();
+    const desc = document.getElementById("pDesc").value.trim();
+    if (!name || !price) return;
+    const btn = document.getElementById("addBtn");
+    btn.disabled = true; btn.textContent = "جارِ الحفظ...";
+
+    const product = {
+      id: uid(),
+      name,
+      price: Number(price),
+      description: desc,
+      image: pendingImage,
+      created_at: new Date().toISOString(),
+    };
+
+    state.products.unshift(product);
+    if (saveProducts()) {
+      showToast("تمت إضافة المنتج");
+    } else {
+      showToast("تعذر الحفظ", "err");
+    }
+    renderAdmin();
+  };
+
+  const list = document.getElementById("prodList");
+  if (state.products.length === 0){
+    list.innerHTML = `<p class="hint center">لا توجد منتجات مضافة بعد.</p>`;
+  } else {
+    list.innerHTML = state.products.map(p => `
+      <div class="prod-row">
+        ${p.image ? `<img src="${esc(p.image)}">` : `<div class="ph"></div>`}
+        <div class="info"><h4>${esc(p.name)}</h4><p>${money(p.price)} د.ع</p></div>
+        <button class="del-btn" data-del="${p.id}">🗑</button>
+      </div>
+    `).join("");
+    list.querySelectorAll("[data-del]").forEach(b => {
+      b.onclick = () => {
+        state.products = state.products.filter(p => p.id !== b.dataset.del);
+        saveProducts();
+        showToast("تم حذف المنتج");
+        renderAdmin();
+      };
+    });
+  }
+}
+
+function renderOrdersTab(body){
+  if (state.orders.length === 0){
+    body.innerHTML = `<p class="hint center" style="padding:30px 0;">لا توجد حجوزات بعد.</p>`;
+    return;
+  }
+  body.innerHTML = state.orders.map(o => `
+    <div class="order-card">
+      <div class="order-top">
+        ${o.product_image ? `<img src="${esc(o.product_image)}">` : `<div class="ph"></div>`}
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px;">${esc(o.product_name)} <span style="color:var(--muted);font-weight:400;">× ${o.qty}</span></div>
+          <div style="font-size:11px;color:var(--muted);">${new Date(o.created_at).toLocaleString("ar")}</div>
+        </div>
+        <div style="font-weight:700;font-size:14px;">${money(o.total)} د.ع</div>
+      </div>
+      <div class="order-details">
+        <div>👤 ${esc(o.customer_name)}</div>
+        <div>📍 ${esc(o.location)}</div>
+        <div>📞 ${esc(o.phone)}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderSettingsTab(body){
+  body.innerHTML = `
+    <div class="panel">
+      <h3>رقم واتساب استلام الحجوزات</h3>
+      <p class="hint">تُرسل كل تفاصيل الحجز تلقائيًا إلى هذا الرقم عبر واتساب. أدخل الرقم مع مفتاح الدولة (مثال: 9647701234567).</p>
+      <input class="plain-input" id="waNum" value="${esc(state.settings.whatsapp)}" placeholder="9647xxxxxxxx" dir="ltr">
+      <div class="err" id="waErr" style="margin:-6px 0 10px;color:var(--err);font-size:12px;"></div>
+      <button class="primary-btn" id="saveWa">حفظ</button>
+    </div>
+    <div class="panel">
+      <h3>تغيير كلمة مرور الإدارة</h3>
+      <input class="plain-input" id="oldPw" type="password" placeholder="كلمة المرور الحالية">
+      <input class="plain-input" id="newPw" type="password" placeholder="كلمة المرور الجديدة">
+      <div class="err" id="pwMsg" style="margin:-6px 0 10px;font-size:12px;"></div>
+      <button class="dark-btn" id="savePw">حفظ كلمة المرور</button>
+    </div>
+  `;
+
+  document.getElementById("saveWa").onclick = () => {
+    const val = document.getElementById("waNum").value.trim();
+    if (val && !isValidWhatsapp(val)) {
+      document.getElementById("waErr").textContent = "الرقم غير صالح، أدخله مع مفتاح الدولة بدون علامة + (مثال: 9647701234567)";
+      return;
+    }
+    document.getElementById("waErr").textContent = "";
+    state.settings.whatsapp = formatWhatsapp(val);
+    saveSettings();
+    showToast("تم حفظ الإعدادات");
+  };
+
+  document.getElementById("savePw").onclick = async () => {
+    const oldPw = document.getElementById("oldPw").value;
+    const newPw = document.getElementById("newPw").value.trim();
+    const msgEl = document.getElementById("pwMsg");
+
+    const oldHash = await sha256Hex(oldPw);
+    if (oldHash !== (state.settings.adminPasswordHash || DEFAULT_PW_HASH)) {
+      msgEl.style.color = "var(--err)";
+      msgEl.textContent = "كلمة المرور الحالية غير صحيحة";
+      return;
+    }
+    if (!newPw || newPw.length < 4) {
+      msgEl.style.color = "var(--err)";
+      msgEl.textContent = "كلمة المرور الجديدة يجب أن تكون 4 أحرف/أرقام على الأقل";
+      return;
+    }
+    const newHash = await sha256Hex(newPw);
+    state.settings.adminPasswordHash = newHash;
+    saveSettings();
+    document.getElementById("oldPw").value = "";
+    document.getElementById("newPw").value = "";
+    msgEl.style.color = "var(--moss)";
+    msgEl.textContent = "تم تغيير كلمة المرور بنجاح ✓";
+    showToast("تم تغيير كلمة المرور");
+  };
+}
+
+/* ======================= بدء التشغيل ======================= */
+(function init(){
+  loadAll();
+  loadingEl.style.display = "none";
+  app.style.display = "block";
+  render();
+})();
+</script>
+</body>
+</html>
