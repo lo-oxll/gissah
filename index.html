@@ -239,8 +239,8 @@ function render(){
 function renderStore(){
   const items = state.products.map(p => `
     <div class="card">
-      <div class="img">${p.image ? <img src="${esc(p.image)}" alt="${esc(p.name)}"> : "🧴"}</div>
-      <div class="body">
+<div class="img">${p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.name) + '">' : '🍼'}</div>
+<div class="body">
         <div class="seal">${money(p.price)}<br>د.ع</div>
         <div class="info">
           <h3>${esc(p.name)}</h3>
